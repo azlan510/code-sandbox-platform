@@ -26,45 +26,65 @@ app.get('/', (req, res) => {
 
 // --- MATCHED TO FRONTEND: changed from /submit to /execute ---
 app.post('/execute', (req, res) => {
-  // MATCHED TO FRONTEND: changed source_code to code
   const { code, language } = req.body;
 
   if (!code || !language) {
     return res.status(400).json({ error: "Code and language are required." });
   }
 
-  // 1. Create a unique temporary file
-  const extension = language === 'python' ? 'py' : 'js';
-  const fileName = `temp_${Date.now()}.${extension}`;
-  const filePath = path.join(__dirname, fileName);
+  // 1. Create a unique temporary directory for isolation
+  const id = Date.now();
+  const tempDir = path.join(__dirname, `temp_${id}`);
+  fs.mkdirSync(tempDir, { recursive: true });
+
+  let filePath, command;
 
   try {
-    // 2. Write the user's code into the file
-    fs.writeFileSync(filePath, code);
+    // 2. Setup the correct file and compilation commands
+    if (language === 'javascript') {
+      filePath = path.join(tempDir, 'script.js');
+      fs.writeFileSync(filePath, code);
+      command = `node "${filePath}"`;
+      
+    } else if (language === 'python') {
+      filePath = path.join(tempDir, 'script.py');
+      fs.writeFileSync(filePath, code);
+      command = `python "${filePath}"`;
+      
+    } else if (language === 'c') {
+      filePath = path.join(tempDir, 'main.c');
+      const outPath = path.join(tempDir, 'main.out');
+      fs.writeFileSync(filePath, code);
+      // Compile with GCC, then execute the binary
+      command = `gcc "${filePath}" -o "${outPath}" && "${outPath}"`;
+      
+    } else if (language === 'java') {
+      // Java requires the file name to match the public class name (Main.java)
+      filePath = path.join(tempDir, 'Main.java');
+      fs.writeFileSync(filePath, code);
+      // Change directory into the temp folder, compile, and run
+      command = `cd "${tempDir}" && javac Main.java && java Main`;
+      
+    } else {
+      return res.status(400).json({ error: "Unsupported language." });
+    }
 
-    // 3. Determine how to run it based on the language
-    const command = language === 'python' ? `python "${filePath}"` : `node "${filePath}"`;
+    // 3. Execute with a 5-second timeout to prevent infinite loops from crashing the server
+    exec(command, { timeout: 5000 }, (error, stdout, stderr) => {
+      // Cleanup: Instantly delete the unique directory and its contents
+      fs.rmSync(tempDir, { recursive: true, force: true });
 
-    // 4. Execute the file securely on your machine
-    exec(command, (error, stdout, stderr) => {
-      // Always delete the temporary file after running it to keep the server clean
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-
-      // If the user's code has an error (like a typo), send the error back
       if (error) {
+        if (error.killed) return res.status(200).json({ output: "Execution Timeout: Code took longer than 5 seconds." });
         return res.status(200).json({ output: stderr || error.message });
       }
       
-      // If successful, send the output back
       res.status(200).json({ output: stdout });
     });
 
   } catch (err) {
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    // Failsafe cleanup
+    if (fs.existsSync(tempDir)) fs.rmSync(tempDir, { recursive: true, force: true });
     res.status(500).json({ error: "Server execution failed." });
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running smoothly on port ${PORT}`);
 });

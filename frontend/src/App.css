@@ -1,23 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;600&display=swap');
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #1e1e1e;
-  color: #e8e8e8;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  color: #e2e8f0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .sandbox-container {
+  width: 95vw;
+  max-width: 1400px;
+  height: 90vh;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
+  overflow: hidden;
 }
 
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  padding: 20px 30px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mac-buttons {
+  display: flex;
+  gap: 8px;
+  width: 60px;
+}
+
+.mac-buttons span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5f56;
+}
+.mac-buttons span:nth-child(2) { background: #ffbd2e; }
+.mac-buttons span:nth-child(3) { background: #27c93f; }
+
+h1 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+h1 span {
+  color: #38bdf8;
+  font-size: 0.8em;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
 }
 
 .controls {
@@ -26,70 +78,85 @@ header {
 }
 
 select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  background: #2d2d2d;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.6);
   color: white;
-  border: 1px solid #404040;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
 }
 
 button {
-  padding: 8px 24px;
-  background-color: #0e639c;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-button:hover { background-color: #1177bb; }
-button.running { background-color: #404040; cursor: not-allowed; }
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+button.running {
+  background: #475569;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
 
 .editor-workspace {
   display: flex;
-  gap: 20px;
+  gap: 2px;
   flex: 1;
-  min-height: 0; /* Important for flex-child scrolling */
+  background: rgba(0, 0, 0, 0.4);
 }
 
-.editor-pane, .output-pane {
+.pane {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #252526;
-  border-radius: 8px;
-  border: 1px solid #333;
-  overflow: hidden;
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.pane-header {
+  padding: 10px 20px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  background: rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 textarea {
   flex: 1;
   background: transparent;
-  color: #d4d4d4;
-  font-family: 'Courier New', Courier, monospace;
+  color: #f8fafc;
+  font-family: 'Fira Code', monospace;
   font-size: 15px;
+  line-height: 1.5;
   padding: 20px;
   border: none;
   resize: none;
   outline: none;
 }
 
-.output-pane h3 {
-  margin: 0;
-  padding: 10px 20px;
-  background: #1e1e1e;
-  border-bottom: 1px solid #333;
-  font-size: 14px;
-  color: #858585;
-}
-
 pre {
   padding: 20px;
   margin: 0;
   white-space: pre-wrap;
-  font-family: 'Courier New', Courier, monospace;
-  color: #4af626;
+  font-family: 'Fira Code', monospace;
+  color: #4ade80;
   overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.5;
 }
