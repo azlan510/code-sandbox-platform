@@ -6,7 +6,7 @@ const fs = require('fs');
 const { exec } = require('child_process');
 const path = require('path');
 const mongoose = require('mongoose');
-require('dotenv').config(); // Brings our .env file back to life!
+require('dotenv').config(); 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -20,17 +20,17 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(cors());
 app.use(express.json());
 
-// ... (Keep your app.get and app.post routes exactly the same below this)
 app.get('/', (req, res) => {
   res.send('The AI Code Sandbox Backend is Live!');
 });
 
-// --- Our Custom Native Execution Engine ---
-app.post('/submit', (req, res) => {
-  const { source_code, language } = req.body;
+// --- MATCHED TO FRONTEND: changed from /submit to /execute ---
+app.post('/execute', (req, res) => {
+  // MATCHED TO FRONTEND: changed source_code to code
+  const { code, language } = req.body;
 
-  if (!source_code || !language) {
-    return res.status(400).json({ error: "Source code and language are required." });
+  if (!code || !language) {
+    return res.status(400).json({ error: "Code and language are required." });
   }
 
   // 1. Create a unique temporary file
@@ -40,11 +40,10 @@ app.post('/submit', (req, res) => {
 
   try {
     // 2. Write the user's code into the file
-    fs.writeFileSync(filePath, source_code);
+    fs.writeFileSync(filePath, code);
 
     // 3. Determine how to run it based on the language
-    // Change this line:
-const command = language === 'python' ? `python "${filePath}"` : `node "${filePath}"`;
+    const command = language === 'python' ? `python "${filePath}"` : `node "${filePath}"`;
 
     // 4. Execute the file securely on your machine
     exec(command, (error, stdout, stderr) => {
